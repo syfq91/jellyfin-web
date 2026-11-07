@@ -1,0 +1,10 @@
+{
+  "mcp": {
+    "servers": {
+      "svelte": {
+        "type": "remote",
+        "url": "https://mcp.svelte.dev/mcp"
+      }
+    }
+  }
+}
