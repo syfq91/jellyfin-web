@@ -447,10 +447,10 @@ These are used from many screens and must be rebuilt as shared components:
 | Framework | React 18 + MUI 6 + Emotion | **Svelte 5 + SvelteKit 2 + TypeScript**; no React/MUI |
 | Routing | react-router 6 hash router, 2 route systems | SvelteKit SPA shell (`ssr = false`, `adapter-static`) + a **hash router** (`svelte-spa-router` or a small typed hash router) so `/#/home` and legacy `#!` links keep working; one route system, lazy route chunks |
 | Icons | `material-design-icons-iconfont` | **Lucide** via `lucide-svelte`, imported per icon and tree-shaken |
-| UI primitives | MUI 6 components | Bits UI or Melt UI (headless, Svelte) + a small internal component library |
+| UI primitives | MUI 6 components | **Bits UI** (headless, Svelte) + a small internal token-styled component library |
 | Styling | SCSS + MUI + CSS vars | Design tokens + CSS custom properties + component-scoped Svelte styles; refreshed visual language |
 | Tables | `material-react-table` | `@tanstack/svelte-table` or a small accessible table component |
-| Date/time | `@mui/x-date-pickers` | `date-picker-svelte` or a small token-styled picker built on `@internationalized/date` |
+| Date/time | `@mui/x-date-pickers` | Bits UI date components (Calendar / Date Picker / Date Field) + token styling |
 | API | `@jellyfin/sdk` + `jellyfin-apiclient` + raw axios/jQuery | `@jellyfin/sdk` + thin `SessionManager` over axios; no jQuery |
 | Server state | TanStack Query + IndexedDB persistence | `@tanstack/svelte-query` + IndexedDB persistence, WebSocket invalidation |
 | Client state | Context + ad-hoc singletons + events | Svelte 5 runes + small typed stores for player/queue/session/UI |
@@ -545,7 +545,7 @@ Keep player adapters lazy: the HLS/cast/book/pdf/comic chunks must not be in the
 ### 4.6 UI system
 
 - One Svelte shell layout: toolbar + drawer + content + now-playing bar.
-- Headless behavior from **Bits UI** or **Melt UI**; all visuals come from our own token-styled Svelte components.
+- Headless behavior from **Bits UI**; all visuals come from our own token-styled Svelte components.
 - Design tokens: color, spacing, typography, radius, elevation, breakpoints, focus ring, motion.
 - Icons: **Lucide** (https://lucide.dev/) via `lucide-svelte`; import icons individually (never a barrel import) so unused icons are tree-shaken. Wrap the common set in a small `Icon` component for consistent sizing/stroke and RTL flipping.
 - Primitives: Button, IconButton, Menu, Select, TextField, Checkbox, Switch, Tabs, Dialog, Snackbar, Card, List, Chip, Progress, Skeleton, Tooltip.
@@ -610,7 +610,7 @@ Delete from the rewrite once parity is verified; keep the original sources in th
 | Dead `appHost.supportsPlayMethod` branch in `htmlVideoPlayer` | Removed; keep the real `player.supportsPlayMethod` capability |
 | Legacy polyfills (`core-js`, `whatwg-fetch`, `abortcontroller-polyfill`, `resize-observer-polyfill`, etc.) | Browser APIs per §9.2.2 baseline |
 | `src/apps/legacy/features/playback/**` ad-hoc player glue | `PlaybackController` + adapters |
-| React, ReactDOM, MUI, Emotion, `material-react-table`, `@mui/x-date-pickers` | Svelte 5 + Bits/Melt UI + TanStack Table + token-styled pickers |
+| React, ReactDOM, MUI, Emotion, `material-react-table`, `@mui/x-date-pickers` | Svelte 5 + Bits UI + TanStack Table + token-styled components |
 
 ---
 
@@ -817,6 +817,7 @@ Exit: §6.7–6.8 complete; release candidate.
 | Layout switching | **Removed** | The modern responsive layout is always used. The Display preference no longer exposes a layout mode; `layoutManager` is deleted. |
 | Plugin configuration UI | **Sandboxed iframe + typed `postMessage` bridge** | Plugin pages stay server-provided HTML. The Svelte app hosts them in a route and provides the surrounding admin chrome; the bridge covers theme, resize, toast, navigate, close, and dirty state with origin checks (§9.2.6). |
 | UI framework | **Svelte 5 + SvelteKit** | React, ReactDOM, MUI, Emotion, and React-only libraries are removed. SvelteKit is a static SPA build; top-level navigation uses a hash router to preserve `/#/...` URLs; icons use Lucide (`lucide-svelte`) (§9.2.1). |
+| UI primitives | **Bits UI** | Headless behavior for dialogs, menus, selects, tabs, tooltips, popovers, sliders, switches, calendars, and date pickers; wrapped in token-styled components. Melt UI is rejected; TanStack Table remains for admin tables. |
 | Visual design | **Refreshed** | Behavior parity is required; pixel parity is not. New design language defined in Phase 0, implemented with tokens (§9.2.5). |
 | Downloads | **Download only, no offline mode** | Per-item file download only; no native manager, no offline media cache, no service-worker media storage (§9.2.4). |
 | Browser baseline | **Accepted: evergreen** | Last 2 Chrome/Edge/Firefox, Firefox ESR, Safari 16+, iOS 16+, Android Chrome last 2; no polyfill layer (§9.2.2). |
@@ -848,7 +849,7 @@ Each brief records the context, realistic options, trade-offs, and outcome. All 
 
 | Option | Pros | Cons | Status |
 |---|---|---|---|
-| **A. Svelte 5 + SvelteKit** | Small runtime; compiler-driven, no virtual DOM; SvelteKit build/dev/asset tooling; `adapter-static` SPA; headless UI (Bits UI/Melt UI), `@tanstack/svelte-query`, `@tanstack/svelte-table`; excellent transitions for OSD/sliders | Slightly more runtime/conventions than plain Vite+Svelte; Svelte ecosystem is smaller than React; some libraries need small custom implementations; hash router needed for drop-in URLs | **Chosen** |
+| **A. Svelte 5 + SvelteKit** | Small runtime; compiler-driven, no virtual DOM; SvelteKit build/dev/asset tooling; `adapter-static` SPA; headless UI (**Bits UI**), `@tanstack/svelte-query`, `@tanstack/svelte-table`; excellent transitions for OSD/sliders | Slightly more runtime/conventions than plain Vite+Svelte; Svelte ecosystem is smaller than React; some libraries need small custom implementations; hash router needed for drop-in URLs | **Chosen** |
 | **B. Svelte 5 + Vite only** | Smallest possible build; simple | Loses SvelteKit tooling/structure; still needs a hash router; no advantage for this app | Rejected |
 | **C. SolidJS** | Fine-grained reactivity; very small | Smaller ecosystem; fewer headless UI options; team ramp-up | Rejected |
 | **D. Preact** | Closest to current React code; large ecosystem | Keeps React-style architecture; less bundle win; still removes MUI | Rejected |
@@ -860,7 +861,7 @@ Each brief records the context, realistic options, trade-offs, and outcome. All 
 - **SvelteKit 2** + `@sveltejs/adapter-static`, `ssr = false`, `paths.relative`, SPA fallback `index.html`.
 - **Hash router** for top-level screens (`/#/home`, `#!` compatibility); typed route table with lazy `import()` chunks.
 - **Lucide** (https://lucide.dev/) via `lucide-svelte`, imported per icon and wrapped in a shared `Icon` component for sizing/stroke/RTL.
-- Supporting stack: Bits UI or Melt UI, `@tanstack/svelte-query`, `@tanstack/svelte-table`, `svelte-i18n`, `date-picker-svelte` (or a token-styled picker).
+- Supporting stack: **Bits UI** (including its Calendar / Date Picker / Date Field components), `@tanstack/svelte-query`, `@tanstack/svelte-table`, `svelte-i18n`. Melt UI is rejected for this project.
 
 **Affects.** Every screen, component library, build, testing tools, hiring/ramp-up, bundle budget, deployment layout.
 

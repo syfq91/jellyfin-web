@@ -41,7 +41,7 @@ A lightweight, **browser-only** alternative UI for Jellyfin.
 | Build | SvelteKit + Vite + `@sveltejs/adapter-static` (`ssr = false`, SPA fallback) |
 | Routing | Hash router for top-level screens; SvelteKit's History router is not used for the screen table |
 | Icons | Lucide (https://lucide.dev/) via `lucide-svelte`, per-icon imports |
-| UI primitives | Bits UI or Melt UI + internal token-styled components |
+| UI primitives | Bits UI + internal token-styled components |
 | Styling | Design tokens + CSS custom properties + component-scoped Svelte styles |
 | Server state | `@tanstack/svelte-query` + IndexedDB persistence + WebSocket invalidation |
 | Client state | Svelte 5 runes + small typed stores |
@@ -59,6 +59,7 @@ A lightweight, **browser-only** alternative UI for Jellyfin.
 - **No offline media cache**, no service-worker media interception, no "available offline" state.
 - **No top-level history routing.** Keep `/#/...` and `#!` links working; hash routing is a product requirement.
 - **No pixel-for-pixel visual parity requirement.** Behavior parity is the acceptance bar; use the new design tokens.
+- **Bits UI only** for headless primitives. Do not add Melt UI or another headless UI library; TanStack Table remains for admin tables.
 - **Lucide only** for icons. No icon font, no mixed icon sets.
 - **All user-facing strings go through the i18n layer.** No hard-coded English.
 - **One data layer.** No ad-hoc `fetch`/`axios` calls outside the API/session modules.
@@ -207,7 +208,7 @@ Always run the checks relevant to the files you touched. For UI work that means 
 
 - Use the design tokens for color, spacing, typography, radius, elevation, motion, focus.
 - Use `lucide-svelte` imports per icon; wrap common icons in a shared `Icon` component.
-- Use Bits UI/Melt UI for accessible behavior; style them with tokens.
+- Use **Bits UI** for accessible behavior; style it with tokens. Wrap Bits components in `$lib/components` and import the wrappers from feature screens. Bits UI also provides the calendar/date-picker primitives.
 - No ad-hoc inline styles for themeable values.
 - All strings via `t()`; no hard-coded English.
 - Keyboard-first: every interactive element focusable, visible focus, predictable focus return after dialogs/menus.
